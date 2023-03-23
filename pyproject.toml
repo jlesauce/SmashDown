@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "SmashDown"
+version = "0.0.0"
+description = """
+SmashDown is a Python-based badminton tournament management system that helps organizers manage tournaments for double
+matches. The system generates random team pairings for each match, updates player rankings after each round, and ensures
+that each team plays against every other team exactly once.
+"""
+authors = ["Julien LE SAUCE <julien.lesauce@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/jlesauce/SmashDown"
+repository = "https://github.com/jlesauce/SmashDown"
+keywords = ["badminton", "tournament", "round-robin"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: X11 Applications :: Qt",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Utilities"
+]
+packages = [
+    { include = "smashdown" },
+]
+include = [
+    "LICENSE"
+]
+
+[tool.poetry.scripts]
+smashdown = 'smashdown.__main__:main'
+
+[tool.poetry.dependencies]
+PyQt6 = "~=6.4.2"
+observable = "~=1.0.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "~=7.2.2"
+coverage = "~=7.2.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
