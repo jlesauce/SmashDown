@@ -12,20 +12,21 @@ logger = logging.getLogger(__name__)
 
 class MainWindow(QMainWindow):
     EVENT_ID_ON_CLOSE_BUTTON_CLICKED = 'close_event'
+    EVENT_ID_ON_START_TOURNAMENT_BUTTON_CLICKED = 'start_tournament'
 
     def __init__(self, model: ApplicationModel):
         super().__init__()
         self._model = model
-        self._observable = Observable()
+        self._event_listeners = Observable()
 
         self._init_ui()
 
     def add_event_listener(self, function, event_id: str):
-        self._observable.on(event_id, function)
+        self._event_listeners.on(event_id, function)
 
     def closeEvent(self, event):
         logger.debug(f'Notify {self.EVENT_ID_ON_CLOSE_BUTTON_CLICKED} received')
-        self._observable.trigger(self.EVENT_ID_ON_CLOSE_BUTTON_CLICKED, event)
+        self._event_listeners.trigger(self.EVENT_ID_ON_CLOSE_BUTTON_CLICKED, event)
         event.accept()
 
     @staticmethod
@@ -44,47 +45,48 @@ class MainWindow(QMainWindow):
             QApplication.restoreOverrideCursor()
 
     def _init_ui(self):
-        # Set window title and size
-        self.setWindowTitle('ShuttleSmash')
+        self.setWindowTitle(self._model.application_name)
         self.setGeometry(200, 200, 300, 150)
 
-        # Create central widget and set layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
-        grid = QGridLayout()
-        central_widget.setLayout(grid)
+        grid_layout = QGridLayout()
+        central_widget.setLayout(grid_layout)
 
-        # Create labels and input fields
+        self._create_labels_and_input_fields(grid_layout)
+        self._create_start_button(grid_layout)
+
+    def _create_labels_and_input_fields(self, layout):
         num_teams_label = QLabel('Number of teams:')
         self.num_teams_input = QLineEdit()
         num_rounds_label = QLabel('Number of rounds:')
         self.num_rounds_input = QLineEdit()
 
-        # Create submit button and connect to function
+        layout.addWidget(num_teams_label, 0, 0)
+        layout.addWidget(self.num_teams_input, 0, 1)
+        layout.addWidget(num_rounds_label, 1, 0)
+        layout.addWidget(self.num_rounds_input, 1, 1)
+
+    def _create_start_button(self, layout):
         submit_button = QPushButton('Start tournament')
-        submit_button.clicked.connect(self.submit)
+        submit_button.clicked.connect(self._on_click_start_tournament_button)
+        layout.addWidget(submit_button, 2, 0, 1, 2)
 
-        # Add widgets to layout
-        grid.addWidget(num_teams_label, 0, 0)
-        grid.addWidget(self.num_teams_input, 0, 1)
-        grid.addWidget(num_rounds_label, 1, 0)
-        grid.addWidget(self.num_rounds_input, 1, 1)
-        grid.addWidget(submit_button, 2, 0, 1, 2)
-
-    def submit(self):
-        # Get user input from input fields
+    def _validate_input_fields(self):
         num_teams = self.num_teams_input.text()
         num_rounds = self.num_rounds_input.text()
 
-        # Validate user input
         if not num_teams.isdigit() or not num_rounds.isdigit():
-            QMessageBox.critical(self, 'Error', 'Please enter valid numbers')
+            self.show_error_message(message='Please enter valid numbers')
             return
 
-        # Convert user input to integers
-        num_teams = int(num_teams)
-        num_rounds = int(num_rounds)
+    def _on_click_start_tournament_button(self):
+        self._validate_input_fields()
+        num_teams = int(self.num_teams_input.text())
+        num_rounds = int(self.num_rounds_input.text())
 
-        # Start tournament with user input
-        # TODO: Add code to start tournament with user input
+        logger.debug(f'Notify {self.EVENT_ID_ON_START_TOURNAMENT_BUTTON_CLICKED} received')
+        self._event_listeners.trigger(self.EVENT_ID_ON_START_TOURNAMENT_BUTTON_CLICKED,
+                                      num_teams=num_teams,
+                                      num_rounds=num_rounds)
