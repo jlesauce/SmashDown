@@ -9,6 +9,7 @@ class ApplicationModel:
         self.application_name = ApplicationModel.APPLICATION_NAME
         self.settings = QSettings(ApplicationModel.APPLICATION_SHORT_NAME)
         self._init_settings()
+        self.players = []
 
     def _init_settings(self):
         self.settings.setValue('dummy/setting_name', 'value')

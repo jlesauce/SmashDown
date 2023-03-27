@@ -10,6 +10,9 @@ class Match:
     def add_set(self, score_team1: int, score_team2: int):
         self.sets.append(Set(score_team1, score_team2))
 
+    def __str__(self):
+        return str(self.team1) + '  VERSUS  ' + str(self.team2)
+
 
 class Set:
     def __init__(self, score_team1: int, score_team2: int):

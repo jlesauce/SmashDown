@@ -1,49 +1,35 @@
-import itertools
 import random
-from typing import List, Tuple, Match
 
+from smashdown.tournament.match import Match
+from smashdown.tournament.player import Player
 from smashdown.tournament.team import Team
 
 
 class Tournament:
-    def __init__(self, num_teams: int, num_rounds: int):
-        self.num_teams = num_teams
-        self.num_rounds = num_rounds
-        self.teams = self._create_teams()
-        self.matches = self._create_matches()
+    def __init__(self, players: list[Player]):
+        self.players = players
+        self.num_players = len(players)
+        self.teams = None
+        self.matches = None
 
-    def _create_teams(self) -> List[Team]:
-        # TODO: Implement team creation logic to randomly pair players and assign to teams
-        pass
+    def create_random_teams(self):
+        random.shuffle(self.players)
+        num_teams = self.num_players // 2
+        teams = []
+        for team_index in range(num_teams):
+            team = Team([self.players[team_index * 2], self.players[team_index * 2 + 1]])
+            teams.append(team)
+        self.teams = teams
 
-    def _create_matches(self) -> List[Match]:
+    def create_random_matches(self):
         if not self.teams:
-            return None
+            return
+
+        random.shuffle(self.teams)
+        num_matches = len(self.teams) // 2
         matches = []
-        # Generate all possible combinations of teams and shuffle them
-        combinations = list(itertools.combinations(self.teams, 2))
-        random.shuffle(combinations)
-        # Take the first num_rounds * num_teams/2 combinations
-        combinations = combinations[:self.num_rounds * self.num_teams // 2]
-        for team1, team2 in combinations:
-            match = Match(team1, team2)
+        for match_index in range(num_matches):
+            match = Match(self.teams[match_index * 2], self.teams[match_index * 2 + 1])
             matches.append(match)
-        return matches
 
-    def play(self):
-        for match in self.matches:
-            match.play()
-            self.update_scores(match)
-
-    def update_scores(self, match: Match):
-        if match.score1 > match.score2:
-            match.team1.score += 1
-        elif match.score2 > match.score1:
-            match.team2.score += 1
-
-    def get_leaderboard(self) -> List[Tuple[str, int]]:
-        leaderboard = []
-        for team in self.teams:
-            leaderboard.append((team.name, team.score))
-        leaderboard.sort(key=lambda x: x[1], reverse=True)
-        return leaderboard
+        self.matches = matches

@@ -1,25 +1,47 @@
 import logging
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore, uic
+from PyQt6.QtWidgets import QMainWindow, QHeaderView, QTableWidgetItem
 from PyQt6.QtWidgets import QMessageBox, QApplication
-from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QGridLayout, QMainWindow
 from observable import Observable
 
 from smashdown.application_model import ApplicationModel
+from smashdown.tournament.match import Match
+from smashdown.ui.design.ui_design_file import UiDesignFile
+from smashdown.ui.rounds_tab_panel import RoundsTabPanel
 
 logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
     EVENT_ID_ON_CLOSE_BUTTON_CLICKED = 'close_event'
-    EVENT_ID_ON_START_TOURNAMENT_BUTTON_CLICKED = 'start_tournament'
+    EVENT_ID_ON_GENERATE_MATCHES_BUTTON_CLICKED = 'generate_matches'
 
     def __init__(self, model: ApplicationModel):
         super().__init__()
         self._model = model
         self._event_listeners = Observable()
 
+        uic.loadUi(UiDesignFile('main_window.ui').path, self)
+        self._rounds_tab_panel = RoundsTabPanel()
         self._init_ui()
+
+    def get_players_list(self):
+        table_content = []
+        players_table = self.players_table
+        for row in range(players_table.rowCount()):
+            row_content = []
+            for column in range(players_table.columnCount()):
+                cell = players_table.item(row, column)
+                if cell is not None:
+                    row_content.append(cell.text())
+                else:
+                    row_content.append('')
+            table_content.append(row_content)
+        return table_content
+
+    def add_new_round_to_matches_tab_widget(self, matches: list[Match]):
+        self._rounds_tab_panel.create_tab(matches)
 
     def add_event_listener(self, function, event_id: str):
         self._event_listeners.on(event_id, function)
@@ -46,47 +68,60 @@ class MainWindow(QMainWindow):
 
     def _init_ui(self):
         self.setWindowTitle(self._model.application_name)
-        self.setGeometry(200, 200, 300, 150)
+        self._init_ui_actions()
+        self._init_players_table()
+        self.tab_matches_layout.addWidget(self._rounds_tab_panel)
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+    def _init_ui_actions(self):
+        self.menu_action_exit.triggered.connect(QApplication.instance().quit)
+        self.generate_matches_button.clicked.connect(self._on_click_generate_matches_button)
 
-        grid_layout = QGridLayout()
-        central_widget.setLayout(grid_layout)
+    def _init_players_table(self):
+        players_table = self.players_table
+        players_table.setHorizontalHeaderLabels(['First Name', 'Last Name'])
+        self._strech_players_table_columns()
+        RoundsTabPanel.add_border_below_header_row(players_table)
 
-        self._create_labels_and_input_fields(grid_layout)
-        self._create_start_button(grid_layout)
+        # FIXME Remove after testing
+        # + set default row to 1 in .ui file after removing this block
+        self._insert_player_in_players_table_widget('John', 'Shepard')
+        self._insert_player_in_players_table_widget('Jacques', 'Chirac')
+        self._insert_player_in_players_table_widget('Brigitte', 'Bardot')
+        self._insert_player_in_players_table_widget('Jean-Jacques', 'Goldman')
+        self._insert_player_in_players_table_widget('Emmanuel', 'Macron')
+        self._insert_player_in_players_table_widget('Ada', 'Lovelace')
+        self._insert_player_in_players_table_widget('Simone', 'Veil')
+        self._insert_player_in_players_table_widget('Mahatma', 'Gandhi')
+        self._insert_player_in_players_table_widget('Charles', 'De Gaulle')
+        self._insert_player_in_players_table_widget('Asterix', 'Le Gaulois')
+        self._insert_player_in_players_table_widget('Jack', "O'Neill")
+        self._insert_player_in_players_table_widget('Samantha', 'Carter')
+        # FIXME END
 
-    def _create_labels_and_input_fields(self, layout):
-        num_teams_label = QLabel('Number of teams:')
-        self.num_teams_input = QLineEdit()
-        num_rounds_label = QLabel('Number of rounds:')
-        self.num_rounds_input = QLineEdit()
+        self.add_player_button.clicked.connect(self._on_click_add_player_button)
 
-        layout.addWidget(num_teams_label, 0, 0)
-        layout.addWidget(self.num_teams_input, 0, 1)
-        layout.addWidget(num_rounds_label, 1, 0)
-        layout.addWidget(self.num_rounds_input, 1, 1)
+    def _strech_players_table_columns(self):
+        header = self.players_table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
 
-    def _create_start_button(self, layout):
-        submit_button = QPushButton('Start tournament')
-        submit_button.clicked.connect(self._on_click_start_tournament_button)
-        layout.addWidget(submit_button, 2, 0, 1, 2)
+    def _insert_player_in_players_table_widget(self, *colum_values):
+        players_table = self.players_table
+        row_position = players_table.rowCount()
+        players_table.insertRow(row_position)
 
-    def _validate_input_fields(self):
-        num_teams = self.num_teams_input.text()
-        num_rounds = self.num_rounds_input.text()
+        values_to_be_inserted = colum_values if len(colum_values) > 0 else ["", ""]
 
-        if not num_teams.isdigit() or not num_rounds.isdigit():
-            self.show_error_message(message='Please enter valid numbers')
-            return
+        if len(values_to_be_inserted) != players_table.columnCount():
+            raise ValueError(f'Invalid number of columns to insert: expected number of columns is '
+                             f'{players_table.columnCount()}, received {len(values_to_be_inserted)}')
 
-    def _on_click_start_tournament_button(self):
-        self._validate_input_fields()
-        num_teams = int(self.num_teams_input.text())
-        num_rounds = int(self.num_rounds_input.text())
+        for column in range(players_table.columnCount()):
+            players_table.setItem(row_position, column, QTableWidgetItem(values_to_be_inserted[column]))
 
-        logger.debug(f'Notify {self.EVENT_ID_ON_START_TOURNAMENT_BUTTON_CLICKED} received')
-        self._event_listeners.trigger(self.EVENT_ID_ON_START_TOURNAMENT_BUTTON_CLICKED,
-                                      num_teams=num_teams,
-                                      num_rounds=num_rounds)
+    def _on_click_add_player_button(self):
+        self._insert_player_in_players_table_widget()
+
+    def _on_click_generate_matches_button(self):
+        logger.debug(f'Notify {self.EVENT_ID_ON_GENERATE_MATCHES_BUTTON_CLICKED} received')
+        self._event_listeners.trigger(self.EVENT_ID_ON_GENERATE_MATCHES_BUTTON_CLICKED)
