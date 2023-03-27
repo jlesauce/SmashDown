@@ -6,7 +6,6 @@ from PyQt6.QtWidgets import QMessageBox, QApplication
 from observable import Observable
 
 from smashdown.application_model import ApplicationModel
-from smashdown.tournament.match import Match
 from smashdown.ui.design.ui_design_file import UiDesignFile
 from smashdown.ui.rounds_tab_panel import RoundsTabPanel
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class MainWindow(QMainWindow):
     EVENT_ID_ON_CLOSE_BUTTON_CLICKED = 'close_event'
-    EVENT_ID_ON_GENERATE_MATCHES_BUTTON_CLICKED = 'generate_matches'
+    EVENT_ID_ON_NEXT_ROUND_BUTTON_CLICKED = 'next_round'
 
     def __init__(self, model: ApplicationModel):
         super().__init__()
@@ -40,8 +39,8 @@ class MainWindow(QMainWindow):
             table_content.append(row_content)
         return table_content
 
-    def add_new_round_to_matches_tab_widget(self, matches: list[Match]):
-        self._rounds_tab_panel.create_tab(matches)
+    def add_new_round_to_matches_tab_widget(self):
+        self._rounds_tab_panel.create_tab(self._model.get_current_matches())
 
     def add_event_listener(self, function, event_id: str):
         self._event_listeners.on(event_id, function)
@@ -74,7 +73,7 @@ class MainWindow(QMainWindow):
 
     def _init_ui_actions(self):
         self.menu_action_exit.triggered.connect(QApplication.instance().quit)
-        self.generate_matches_button.clicked.connect(self._on_click_generate_matches_button)
+        self.next_round_button.clicked.connect(self._on_click_next_round_button)
 
     def _init_players_table(self):
         players_table = self.players_table
@@ -122,6 +121,6 @@ class MainWindow(QMainWindow):
     def _on_click_add_player_button(self):
         self._insert_player_in_players_table_widget()
 
-    def _on_click_generate_matches_button(self):
-        logger.debug(f'Notify {self.EVENT_ID_ON_GENERATE_MATCHES_BUTTON_CLICKED} received')
-        self._event_listeners.trigger(self.EVENT_ID_ON_GENERATE_MATCHES_BUTTON_CLICKED)
+    def _on_click_next_round_button(self):
+        logger.debug(f'Notify {self.EVENT_ID_ON_NEXT_ROUND_BUTTON_CLICKED} received')
+        self._event_listeners.trigger(self.EVENT_ID_ON_NEXT_ROUND_BUTTON_CLICKED)

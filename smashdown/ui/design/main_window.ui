@@ -120,7 +120,7 @@
         <item row="1" column="0">
          <layout class="QVBoxLayout" name="tab_matches_layout">
           <item>
-           <widget class="QPushButton" name="generate_matches_button">
+           <widget class="QPushButton" name="next_round_button">
             <property name="maximumSize">
              <size>
               <width>150</width>
@@ -134,7 +134,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Generate Matches</string>
+             <string>Next Round</string>
             </property>
            </widget>
           </item>

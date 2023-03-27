@@ -10,6 +10,11 @@ class ApplicationModel:
         self.settings = QSettings(ApplicationModel.APPLICATION_SHORT_NAME)
         self._init_settings()
         self.players = []
+        self.current_round = -1
+        self.matches_by_rounds = []
+
+    def get_current_matches(self):
+        return self.matches_by_rounds[self.current_round]
 
     def _init_settings(self):
         self.settings.setValue('dummy/setting_name', 'value')

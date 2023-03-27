@@ -10,7 +10,6 @@ class Tournament:
         self.players = players
         self.num_players = len(players)
         self.teams = None
-        self.matches = None
 
     def create_random_teams(self):
         random.shuffle(self.players)
@@ -21,10 +20,7 @@ class Tournament:
             teams.append(team)
         self.teams = teams
 
-    def create_random_matches(self):
-        if not self.teams:
-            return
-
+    def create_random_matches(self) -> list[Match]:
         random.shuffle(self.teams)
         num_matches = len(self.teams) // 2
         matches = []
@@ -32,4 +28,4 @@ class Tournament:
             match = Match(self.teams[match_index * 2], self.teams[match_index * 2 + 1])
             matches.append(match)
 
-        self.matches = matches
+        return matches

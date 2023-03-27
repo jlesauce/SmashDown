@@ -19,16 +19,22 @@ class ApplicationController:
         self._init_event_listeners()
         self._view.show()
 
-    def generate_matches(self):
+    def next_round(self):
         if not self._tournament:
             self._tournament = Tournament(self._model.players)
             self._debug_print_players()
 
         self._tournament.create_random_teams()
         self._debug_print_teams()
-        self._tournament.create_random_matches()
-        self._view.add_new_round_to_matches_tab_widget(self._tournament.matches)
+
+        self.create_round_matches()
+        self._view.add_new_round_to_matches_tab_widget()
         self._debug_print_matches()
+
+    def create_round_matches(self):
+        self._model.current_round += 1
+        matches = self._tournament.create_random_matches()
+        self._model.matches_by_rounds.append(matches)
 
     @staticmethod
     def close_application(_):
@@ -36,8 +42,8 @@ class ApplicationController:
 
     def _init_event_listeners(self):
         self._view.add_event_listener(self.close_application, MainWindow.EVENT_ID_ON_CLOSE_BUTTON_CLICKED)
-        self._view.add_event_listener(self._on_generate_matches_button_clicked,
-                                      MainWindow.EVENT_ID_ON_GENERATE_MATCHES_BUTTON_CLICKED)
+        self._view.add_event_listener(self._on_next_round_button_clicked,
+                                      MainWindow.EVENT_ID_ON_NEXT_ROUND_BUTTON_CLICKED)
 
     def _debug_print_players(self):
         players_str = '\n'.join(['\t' + str(player) for player in self._model.players])
@@ -49,7 +55,7 @@ class ApplicationController:
         logger.debug(f'\nTeams:\n{teams_str}')
 
     def _debug_print_matches(self):
-        matches = self._tournament.matches
+        matches = self._model.get_current_matches()
         matches_str = '\n'.join(['\t' + str(index) + ': ' + str(matches[index]) for index in range(len(matches))])
         logger.debug(f'\nMatches:\n{matches_str}')
 
@@ -59,7 +65,7 @@ class ApplicationController:
             player_objects.append(Player(first_name=player[0], last_name=player[1]))
         self._model.players = player_objects
 
-    def _on_generate_matches_button_clicked(self):
+    def _on_next_round_button_clicked(self):
         logger.debug(f'Generate matches')
         self._update_player_list_in_model(self._view.get_players_list())
-        self.generate_matches()
+        self.next_round()
