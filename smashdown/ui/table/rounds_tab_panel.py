@@ -2,10 +2,11 @@ import logging
 import math
 
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import QSysInfo, Qt
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QTabWidget, QTableWidget, QTableWidgetItem, QHeaderView
 
 from smashdown.tournament.match import Match
+from smashdown.ui.table.table_helpers import add_border_below_header_row
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class RoundsTabPanel(QTabWidget):
 
         column_headers = ['Team 1', 'Team 2', 'Set 1', '', 'Set 2', '', 'Set 3', '']
         table_widget.setHorizontalHeaderLabels(column_headers)
-        self.add_border_below_header_row(table_widget)
+        add_border_below_header_row(table_widget)
 
         self._create_cell_elements(table_widget, matches)
         self._strech_table_columns(table_widget)
@@ -71,26 +72,6 @@ class RoundsTabPanel(QTabWidget):
             header.setSectionResizeMode(column_index, QHeaderView.ResizeMode.Stretch)
         for column_index in range(0, 2):
             header.setSectionResizeMode(column_index, QHeaderView.ResizeMode.ResizeToContents)
-
-    @staticmethod
-    def add_border_below_header_row(table: QTableWidget):
-        if QSysInfo.productType() == "windows" and QSysInfo.productVersion() == "10":
-            table.horizontalHeader().setStyleSheet(
-                "QHeaderView::section{"
-                "border-top:0px solid #D8D8D8;"
-                "border-left:0px solid #D8D8D8;"
-                "border-right:1px solid #D8D8D8;"
-                "border-bottom: 1px solid #D8D8D8;"
-                "background-color:white;"
-                "padding:4px;"
-                "}"
-                "QTableCornerButton::section{"
-                "border-top:0px solid #D8D8D8;"
-                "border-left:0px solid #D8D8D8;"
-                "border-right:1px solid #D8D8D8;"
-                "border-bottom: 1px solid #D8D8D8;"
-                "background-color:white;"
-                "}")
 
     def _on_spinner_changed(self, row, column, tab_index, value):
         match = self.scores_by_round[tab_index][row]

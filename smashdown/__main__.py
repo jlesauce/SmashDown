@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 def catch_exceptions(e, value, traceback):
+    old_hook(e, value, traceback)
     QtWidgets.QMessageBox.critical(None, "Critical Error", f"Exception: {e}\n\n"
                                                            f"{value}")
-    old_hook(e, value, traceback)
 
 
 # Redefine exception hook to catch PyQt exceptions

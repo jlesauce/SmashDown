@@ -46,6 +46,8 @@ class ApplicationController:
             sorted_players[ordered_player_index].rank = ordered_player_index
         self._debug_print_players_by_rank()
 
+        self._view.update_players_scores(self._model.players)
+
     @staticmethod
     def _update_player_scores(matches):
         for match in matches:
