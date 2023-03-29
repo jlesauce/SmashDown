@@ -120,23 +120,40 @@
         <item row="1" column="0">
          <layout class="QVBoxLayout" name="tab_matches_layout">
           <item>
-           <widget class="QPushButton" name="next_round_button">
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Nokia Pure Text</family>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Next Round</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="tab_matches_buttons_layout">
+            <item>
+             <widget class="QPushButton" name="next_round_button">
+              <property name="maximumSize">
+               <size>
+                <width>150</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Nokia Pure Text</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Next Round</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="validate_button">
+              <property name="maximumSize">
+               <size>
+                <width>150</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Validate</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>

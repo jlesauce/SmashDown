@@ -33,7 +33,7 @@ class RoundsTabPanel(QTabWidget):
         table_widget.setColumnCount(self.NUM_OF_TABLE_COLMUNS)
         table_widget.setRowCount(len(matches))
 
-        column_headers = ['Team 1', 'Team 2', 'Score Set 1', '', 'Score Set 2', '', 'Score Set 3', '']
+        column_headers = ['Team 1', 'Team 2', 'Set 1', '', 'Set 2', '', 'Set 3', '']
         table_widget.setHorizontalHeaderLabels(column_headers)
         self.add_border_below_header_row(table_widget)
 
@@ -67,8 +67,10 @@ class RoundsTabPanel(QTabWidget):
     @staticmethod
     def _strech_table_columns(table: QTableWidget):
         header = table.horizontalHeader()
-        for column_index in range(0, 2):
+        for column_index in range(0, table.columnCount()):
             header.setSectionResizeMode(column_index, QHeaderView.ResizeMode.Stretch)
+        for column_index in range(0, 2):
+            header.setSectionResizeMode(column_index, QHeaderView.ResizeMode.ResizeToContents)
 
     @staticmethod
     def add_border_below_header_row(table: QTableWidget):

@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 
+from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QApplication
 
 from smashdown.application_controller import ApplicationController
@@ -9,6 +10,17 @@ from smashdown.application_model import ApplicationModel
 from smashdown.utils.logger import configure_logger
 
 logger = logging.getLogger(__name__)
+
+
+def catch_exceptions(e, value, traceback):
+    QtWidgets.QMessageBox.critical(None, "Critical Error", f"Exception: {e}\n\n"
+                                                           f"{value}")
+    old_hook(e, value, traceback)
+
+
+# Redefine exception hook to catch PyQt exceptions
+old_hook = sys.excepthook
+sys.excepthook = catch_exceptions
 
 
 def main():

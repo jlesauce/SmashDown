@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class MainWindow(QMainWindow):
     EVENT_ID_ON_CLOSE_BUTTON_CLICKED = 'close_event'
     EVENT_ID_ON_NEXT_ROUND_BUTTON_CLICKED = 'next_round'
+    EVENT_ID_ON_VALIDATE_BUTTON_CLICKED = 'validate'
 
     def __init__(self, model: ApplicationModel):
         super().__init__()
@@ -74,6 +75,7 @@ class MainWindow(QMainWindow):
     def _init_ui_actions(self):
         self.menu_action_exit.triggered.connect(QApplication.instance().quit)
         self.next_round_button.clicked.connect(self._on_click_next_round_button)
+        self.validate_button.clicked.connect(self._on_click_validate_button)
 
     def _init_players_table(self):
         players_table = self.players_table
@@ -124,3 +126,7 @@ class MainWindow(QMainWindow):
     def _on_click_next_round_button(self):
         logger.debug(f'Notify {self.EVENT_ID_ON_NEXT_ROUND_BUTTON_CLICKED} received')
         self._event_listeners.trigger(self.EVENT_ID_ON_NEXT_ROUND_BUTTON_CLICKED)
+
+    def _on_click_validate_button(self):
+        logger.debug(f'Notify {self.EVENT_ID_ON_VALIDATE_BUTTON_CLICKED} received')
+        self._event_listeners.trigger(self.EVENT_ID_ON_VALIDATE_BUTTON_CLICKED, self._rounds_tab_panel.currentIndex())

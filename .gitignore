@@ -133,3 +133,4 @@ dmypy.json
 
 # QtCreator
 *.autosave
+*.pyproject.user
