@@ -17,7 +17,7 @@ class RoundsTabPanel(QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.table_widget_tabs = []
-        self.spinners = []
+        self.spinners_by_tabs = []
         self.scores_by_round = []
 
     def create_tab(self, matches: list[Match]):
@@ -27,6 +27,15 @@ class RoundsTabPanel(QTabWidget):
         self.setCurrentIndex(self.count() - 1)
 
         self.scores_by_round.append(matches)
+
+    def set_score_spinners_enabled(self, tab_index, is_enabled=True):
+        for spinners_by_row in self.spinners_by_tabs[tab_index]:
+            for spinner_in_row in spinners_by_row:
+                spinner_in_row.lineEdit().setReadOnly(not is_enabled)
+                spinner_in_row.setDisabled(not is_enabled)
+
+    def get_current_index(self) -> int:
+        return self.currentIndex()
 
     def _create_round_matches_table_widget(self, matches: list[Match]) -> QTableWidget:
         table_widget = QTableWidget()
@@ -39,11 +48,13 @@ class RoundsTabPanel(QTabWidget):
         add_border_below_header_row(table_widget)
 
         self._create_cell_elements(table_widget, matches)
-        self._strech_table_columns(table_widget)
+        self._stretch_table_columns(table_widget)
 
         return table_widget
 
     def _create_cell_elements(self, table_widget: QTableWidget, matches: list[Match]):
+        self.spinners_by_tabs.append([])
+
         for row_ in range(len(matches)):
             # Column 0: Team 1
             column_team_1 = QTableWidgetItem(f"{matches[row_].team1}")
@@ -63,10 +74,10 @@ class RoundsTabPanel(QTabWidget):
                 spinner.valueChanged.connect(lambda value, row=row_, tab_index=self.currentIndex() + 1, col=column:
                                              self._on_spinner_changed(row, col, tab_index, value))
                 row_spinners.append(spinner)
-            self.spinners.append(row_spinners)
+            self.spinners_by_tabs[self.count()].append(row_spinners)
 
     @staticmethod
-    def _strech_table_columns(table: QTableWidget):
+    def _stretch_table_columns(table: QTableWidget):
         header = table.horizontalHeader()
         for column_index in range(0, table.columnCount()):
             header.setSectionResizeMode(column_index, QHeaderView.ResizeMode.Stretch)

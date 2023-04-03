@@ -30,6 +30,14 @@ class ApplicationController:
         self.create_round_matches()
         self._view.add_new_round_to_matches_tab_widget()
         self._debug_print_matches()
+        self._view.set_next_round_button_enabled(False)
+        self._view.set_validate_button_enabled(True)
+
+    def validate_scores(self, round_index: int):
+        self.update_player_ranks(round_index)
+        self._view.set_validate_button_enabled(False)
+        self._view.set_score_spinners_enabled(False)
+        self._view.set_next_round_button_enabled(True)
 
     def create_round_matches(self):
         self._model.current_round += 1
@@ -44,8 +52,8 @@ class ApplicationController:
         sorted_players = Player.sort_players_by_score(self._model.players)
         for ordered_player_index in range(len(sorted_players)):
             sorted_players[ordered_player_index].rank = ordered_player_index
-        self._debug_print_players_by_rank()
 
+        self._debug_print_players_by_rank()
         self._view.update_players_scores(self._model.players)
 
     @staticmethod
@@ -56,10 +64,8 @@ class ApplicationController:
 
             for player in match.team1.players:
                 player.score += points_per_rally_scores[0]
-                logger.debug(f'{player} score updated: {player.score=}')
             for player in match.team2.players:
                 player.score += points_per_rally_scores[1]
-                logger.debug(f'{player} score updated: {player.score=}')
 
     @staticmethod
     def close_application(_):
@@ -93,6 +99,7 @@ class ApplicationController:
         logger.debug(f'\nPlayers by rank:\n{str_}')
 
     def _update_player_list_in_model(self, players: list):
+        logger.debug('Update player list in model')
         player_objects = list()
         for player in players:
             player_objects.append(Player(first_name=player[0], last_name=player[1]))
@@ -100,9 +107,10 @@ class ApplicationController:
 
     def _on_next_round_button_clicked(self):
         logger.debug(f'Generate matches')
-        self._update_player_list_in_model(self._view.get_players_list())
+        if not self._model.players:
+            self._update_player_list_in_model(self._view.get_players_list())
         self.next_round()
 
     def _on_validate_button_clicked(self, round_index: int):
         logger.debug(f'Validate round {round_index}')
-        self.update_player_ranks(round_index)
+        self.validate_scores(round_index)

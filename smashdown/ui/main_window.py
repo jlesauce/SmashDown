@@ -48,6 +48,15 @@ class MainWindow(QMainWindow):
     def update_players_scores(self, players: list[Player]):
         self._scores_table_controller.update_players_scores(players)
 
+    def set_next_round_button_enabled(self, is_enabled=True):
+        self.next_round_button.setEnabled(is_enabled)
+
+    def set_validate_button_enabled(self, is_enabled=True):
+        self.validate_button.setEnabled(is_enabled)
+
+    def set_score_spinners_enabled(self, is_enabled=True):
+        self._rounds_tab_panel.set_score_spinners_enabled(self._rounds_tab_panel.get_current_index(), is_enabled)
+
     @staticmethod
     def show_error_message(message: str, title='Oups!'):
         box = QMessageBox()
@@ -55,6 +64,18 @@ class MainWindow(QMainWindow):
         box.setText(message)
         box.setIcon(QMessageBox.Icon.Critical)
         box.exec()
+
+    @staticmethod
+    def show_user_confirmation_message(yes_action, no_action, message: str, title='Are you sure?'):
+        box = QMessageBox()
+        box.setWindowTitle(title)
+        box.setText(message)
+        box.setIcon(QMessageBox.Icon.Question)
+        yes_button = box.addButton("Yes", QMessageBox.ButtonRole.YesRole)
+        _ = box.addButton("No", QMessageBox.ButtonRole.NoRole)
+        box.exec()
+
+        return yes_action() if box.clickedButton() == yes_button else no_action()
 
     @staticmethod
     def set_waiting_cursor(is_enable: bool):
@@ -67,6 +88,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(self._model.application_name)
         self._init_ui_actions()
         self.tab_matches_layout.addWidget(self._rounds_tab_panel)
+        self.set_validate_button_enabled(False)
 
     def _init_ui_actions(self):
         self.menu_action_exit.triggered.connect(QApplication.instance().quit)
@@ -83,4 +105,8 @@ class MainWindow(QMainWindow):
 
     def _on_click_validate_button(self):
         logger.debug(f'Notify {self.EVENT_ID_ON_VALIDATE_BUTTON_CLICKED} received')
-        self._event_listeners.trigger(self.EVENT_ID_ON_VALIDATE_BUTTON_CLICKED, self._rounds_tab_panel.currentIndex())
+        self.show_user_confirmation_message(
+            yes_action=lambda: self._event_listeners.trigger(self.EVENT_ID_ON_VALIDATE_BUTTON_CLICKED,
+                                                             self._rounds_tab_panel.currentIndex()),
+            no_action=lambda: logger.debug("User selected no in the confirmation box"),
+            message="Are you sure you want to validate matches scores? Once done, the round will be closed.")
