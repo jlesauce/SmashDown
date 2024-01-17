@@ -14,7 +14,18 @@ class ApplicationModel:
         self.matches_by_rounds = []
 
     def get_current_matches(self):
-        return self.matches_by_rounds[self.current_round]
+        if len(self.matches_by_rounds) > 0:
+            return self.matches_by_rounds[self.current_round]
+        else:
+            return []
+
+    def is_first_round(self) -> bool:
+        return self.current_round < 1
 
     def _init_settings(self):
-        self.settings.setValue('dummy/setting_name', 'value')
+        self.settings.setValue('tournament/pairing_method', 'random')
+
+    def get_setting(self, key):
+        if not self.settings.contains(key):
+            raise Exception(f"Setting key '{key}' not found")
+        return self.settings.value(key)

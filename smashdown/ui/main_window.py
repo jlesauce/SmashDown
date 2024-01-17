@@ -105,6 +105,10 @@ class MainWindow(QMainWindow):
 
     def _on_click_validate_button(self):
         logger.debug(f'Notify {self.EVENT_ID_ON_VALIDATE_BUTTON_CLICKED} received')
+
+        # FIXME Used for debug
+        self._rounds_tab_panel.debug_set_random_scores()
+
         self.show_user_confirmation_message(
             yes_action=lambda: self._event_listeners.trigger(self.EVENT_ID_ON_VALIDATE_BUTTON_CLICKED,
                                                              self._rounds_tab_panel.currentIndex()),

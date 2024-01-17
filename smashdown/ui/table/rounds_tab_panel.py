@@ -1,5 +1,6 @@
 import logging
 import math
+import random
 
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt
@@ -33,6 +34,9 @@ class RoundsTabPanel(QTabWidget):
             for spinner_in_row in spinners_by_row:
                 spinner_in_row.lineEdit().setReadOnly(not is_enabled)
                 spinner_in_row.setDisabled(not is_enabled)
+
+    def set_score_spinner_value_at(self, round_index: int, line_index: int, set_index: int, value: int):
+        self.spinners_by_tabs[round_index][line_index][set_index].setValue(value)
 
     def get_current_index(self) -> int:
         return self.currentIndex()
@@ -100,3 +104,10 @@ class RoundsTabPanel(QTabWidget):
     @staticmethod
     def translate_column_index_to_team_number(column: int) -> int:
         return 0 if (column - 2) % 2 == 0 else 1
+
+    # FIXME DEBUG function
+    def debug_set_random_scores(self):
+        for tab_index, tab in enumerate(self.spinners_by_tabs):
+            for line_index, line in enumerate(tab):
+                for set_index, _ in enumerate(line):
+                    self.set_score_spinner_value_at(tab_index, line_index, set_index, value=random.randint(0, 22))

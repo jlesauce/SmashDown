@@ -1,6 +1,7 @@
 import logging
 
 from smashdown.application_model import ApplicationModel
+from smashdown.tournament.pairing_method import PairingMethod
 from smashdown.tournament.player import Player
 from smashdown.tournament.tournament import Tournament
 from smashdown.ui.main_window import MainWindow
@@ -19,32 +20,33 @@ class ApplicationController:
         self._init_event_listeners()
         self._view.show()
 
-    def next_round(self):
+    def _next_round(self):
         if not self._tournament:
             self._tournament = Tournament(self._model.players)
             self._debug_print_players()
 
-        self._tournament.create_random_teams()
-        self._debug_print_teams()
+        self._create_round_matches()
 
-        self.create_round_matches()
         self._view.add_new_round_to_matches_tab_widget()
+        self._debug_print_teams()
         self._debug_print_matches()
         self._view.set_next_round_button_enabled(False)
         self._view.set_validate_button_enabled(True)
 
-    def validate_scores(self, round_index: int):
-        self.update_player_ranks(round_index)
+    def _validate_scores(self, round_index: int):
+        self._update_player_ranks(round_index)
         self._view.set_validate_button_enabled(False)
         self._view.set_score_spinners_enabled(False)
         self._view.set_next_round_button_enabled(True)
 
-    def create_round_matches(self):
+    def _create_round_matches(self):
         self._model.current_round += 1
-        matches = self._tournament.create_random_matches()
+        pairing_method = PairingMethod.RANDOM if self._model.is_first_round() \
+            else PairingMethod.to_enum(self._model.get_setting('tournament/pairing_method'))
+        matches = self._tournament.create_matches(pairing_method)
         self._model.matches_by_rounds.append(matches)
 
-    def update_player_ranks(self, round_index: int):
+    def _update_player_ranks(self, round_index: int):
         matches = self._model.matches_by_rounds[round_index]
 
         self._update_player_scores(matches)
@@ -109,8 +111,8 @@ class ApplicationController:
         logger.debug(f'Generate matches')
         if not self._model.players:
             self._update_player_list_in_model(self._view.get_players_list())
-        self.next_round()
+        self._next_round()
 
     def _on_validate_button_clicked(self, round_index: int):
         logger.debug(f'Validate round {round_index}')
-        self.validate_scores(round_index)
+        self._validate_scores(round_index)
