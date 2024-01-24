@@ -23,7 +23,7 @@ class ApplicationModel:
         return self.current_round < 1
 
     def _init_settings(self):
-        self.settings.setValue('tournament/pairing_method', 'random')
+        self.settings.setValue('tournament/pairing_method', 'round_robin')
 
     def get_setting(self, key):
         if not self.settings.contains(key):

@@ -14,5 +14,4 @@ class PairingMethod(Enum):
         for pairing_method in PairingMethod:
             if pairing_method.name.lower() == value.lower():
                 return pairing_method
-
-            raise ValueError(f"Unsupported pairing method: {value}")
+        raise ValueError(f"Unsupported pairing method: {value}")

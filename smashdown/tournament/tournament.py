@@ -4,27 +4,28 @@ from smashdown.tournament.match import Match
 from smashdown.tournament.matcher.matcher_factory import MatcherFactory
 from smashdown.tournament.pairing_method import PairingMethod
 from smashdown.tournament.player import Player
+from smashdown.tournament.team import Team
 
 
 class Tournament:
     def __init__(self, players: list[Player]):
         self.players = players
-        self.teams = None
 
     def create_matches(self, pairing_method=PairingMethod.RANDOM) -> list[Match]:
         matcher = MatcherFactory.create_matcher(pairing_method)
-        self.teams = matcher.match(self.players)
+        teams = matcher.match(self.players)
 
-        for team in self.teams:
+        for team in teams:
             self._update_partners(team.players[0], team.players[1])
 
-        return self._create_matches_using_current_player_order()
+        return self._create_matches_using_current_teams_order(teams)
 
-    def _create_matches_using_current_player_order(self):
-        num_matches = len(self.teams) // 2
+    @staticmethod
+    def _create_matches_using_current_teams_order(teams: list[Team]) -> list[Match]:
+        num_matches = len(teams) // 2
         matches = []
         for match_index in range(num_matches):
-            match = Match(self.teams[match_index * 2], self.teams[match_index * 2 + 1])
+            match = Match(teams[match_index * 2], teams[match_index * 2 + 1])
             matches.append(match)
 
         return matches

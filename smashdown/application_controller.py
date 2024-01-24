@@ -28,7 +28,6 @@ class ApplicationController:
         self._create_round_matches()
 
         self._view.add_new_round_to_matches_tab_widget()
-        self._debug_print_teams()
         self._debug_print_matches()
         self._view.set_next_round_button_enabled(False)
         self._view.set_validate_button_enabled(True)
@@ -83,11 +82,6 @@ class ApplicationController:
     def _debug_print_players(self):
         players_str = '\n'.join(['\t' + str(player) for player in self._model.players])
         logger.debug(f'\nList of players:\n{players_str}')
-
-    def _debug_print_teams(self):
-        teams = self._tournament.teams
-        teams_str = '\n'.join(['\t' + str(index) + ': ' + str(teams[index]) for index in range(len(teams))])
-        logger.debug(f'\nTeams:\n{teams_str}')
 
     def _debug_print_matches(self):
         matches = self._model.get_current_matches()
